@@ -18,28 +18,28 @@ const getHabitIcon = (title: string, category: Category) => {
   const t = title.toLowerCase();
 
   // Specific keyword matching
-  if (t.includes('shilajit')) return <Droplet className="text-indigo-600 dark:text-indigo-400" size={24} />;
-  if (t.includes('garlic')) return <Sprout className="text-green-600 dark:text-green-400" size={24} />;
-  if (t.includes('nut') || t.includes('almond') || t.includes('walnut')) return <Nut className="text-amber-700 dark:text-amber-500" size={24} />;
-  if (t.includes('ashwagandha') || t.includes('tablet')) return <Pill className="text-purple-600 dark:text-purple-400" size={24} />;
-  if (t.includes('ginger') || t.includes('pepper') || t.includes('tea') || t.includes('coffee')) return <Coffee className="text-orange-700 dark:text-orange-500" size={24} />;
-  if (t.includes('water') && !t.includes('ginger')) return <Droplet className="text-blue-500" size={24} />;
-  if (t.includes('food') || t.includes('meal') || t.includes('dinner') || t.includes('lunch') || t.includes('breakfast')) return <Utensils className="text-red-500 dark:text-red-400" size={24} />;
+  if (t.includes('shilajit')) return <Droplet className="text-indigo-600 dark:text-indigo-400" size={20} />;
+  if (t.includes('garlic')) return <Sprout className="text-green-600 dark:text-green-400" size={20} />;
+  if (t.includes('nut') || t.includes('almond') || t.includes('walnut')) return <Nut className="text-amber-700 dark:text-amber-500" size={20} />;
+  if (t.includes('ashwagandha') || t.includes('tablet')) return <Pill className="text-purple-600 dark:text-purple-400" size={20} />;
+  if (t.includes('ginger') || t.includes('pepper') || t.includes('tea') || t.includes('coffee')) return <Coffee className="text-orange-700 dark:text-orange-500" size={20} />;
+  if (t.includes('water') && !t.includes('ginger')) return <Droplet className="text-blue-500" size={20} />;
+  if (t.includes('food') || t.includes('meal') || t.includes('dinner') || t.includes('lunch') || t.includes('breakfast')) return <Utensils className="text-red-500 dark:text-red-400" size={20} />;
   
   // Education keywords
-  if (t.includes('physics') || t.includes('atom')) return <Atom className="text-pink-500" size={24} />;
-  if (t.includes('math')) return <Calculator className="text-pink-500" size={24} />;
-  if (t.includes('chem')) return <FlaskConical className="text-pink-500" size={24} />;
+  if (t.includes('physics') || t.includes('atom')) return <Atom className="text-pink-500" size={20} />;
+  if (t.includes('math')) return <Calculator className="text-pink-500" size={20} />;
+  if (t.includes('chem')) return <FlaskConical className="text-pink-500" size={20} />;
 
   // Category fallback
   switch (category) {
-    case Category.MORNING: return <Sun className="text-orange-500" size={24} />;
-    case Category.SUPPLEMENTS: return <Pill className="text-emerald-500" size={24} />;
-    case Category.DIET: return <Utensils className="text-blue-500" size={24} />;
-    case Category.FITNESS: return <Dumbbell className="text-cyan-500" size={24} />;
-    case Category.EDUCATION: return <BookOpen className="text-pink-500" size={24} />;
-    case Category.SLEEP: return <Moon className="text-violet-500" size={24} />;
-    default: return <Zap className="text-gray-400" size={24} />;
+    case Category.MORNING: return <Sun className="text-orange-500" size={20} />;
+    case Category.SUPPLEMENTS: return <Pill className="text-emerald-500" size={20} />;
+    case Category.DIET: return <Utensils className="text-blue-500" size={20} />;
+    case Category.FITNESS: return <Dumbbell className="text-cyan-500" size={20} />;
+    case Category.EDUCATION: return <BookOpen className="text-pink-500" size={20} />;
+    case Category.SLEEP: return <Moon className="text-violet-500" size={20} />;
+    default: return <Zap className="text-gray-400" size={20} />;
   }
 };
 
@@ -51,9 +51,8 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, status, loggedValue, onAct
   const isSkipped = status === HabitStatus.SKIPPED;
   const isPending = !status || status === HabitStatus.PENDING;
 
-  // Determine if this habit requires a value input (Education or Sleep)
   const requiresValue = habit.category === Category.EDUCATION || habit.category === Category.SLEEP;
-  const unitLabel = habit.category === Category.SLEEP ? 'hrs' : 'mins';
+  const unitLabel = habit.category === Category.SLEEP ? 'hrs' : 'min';
 
   const handleComplete = () => {
     if (requiresValue && !inputValue && !loggedValue) {
@@ -67,18 +66,18 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, status, loggedValue, onAct
 
   return (
     <div className={`
-      relative overflow-hidden rounded-2xl p-4 mb-3 transition-all duration-300 border
+      flex flex-col justify-between p-3 rounded-2xl border transition-all duration-300 h-full min-h-[180px] relative overflow-hidden group
       ${isCompleted 
-        ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800' 
+        ? 'bg-green-50/80 border-green-200 dark:bg-green-900/20 dark:border-green-800' 
         : isSkipped
-          ? 'bg-gray-100 border-gray-200 dark:bg-gray-800 dark:border-gray-700 opacity-70'
-          : 'bg-white border-gray-100 dark:bg-card dark:border-gray-800 shadow-sm'
+          ? 'bg-gray-100 border-gray-200 dark:bg-gray-800 dark:border-gray-700 opacity-60'
+          : 'bg-white border-gray-100 dark:bg-card dark:border-gray-800 shadow-sm hover:shadow-md'
       }
     `}>
-      <div className="flex items-start gap-4">
-        {/* Icon Container */}
+      {/* Top Row: Icon and Status/Time */}
+      <div className="flex justify-between items-start mb-3">
         <div className={`
-          flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center border transition-colors
+          w-10 h-10 rounded-xl flex items-center justify-center border transition-colors
           ${isCompleted 
              ? 'bg-green-100 border-green-200 dark:bg-green-900/40 dark:border-green-800' 
              : isSkipped
@@ -88,90 +87,86 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, status, loggedValue, onAct
         `}>
           {getHabitIcon(habit.title, habit.category)}
         </div>
-
-        {/* Content */}
-        <div className="flex-1 min-w-0">
-          <div className="flex justify-between items-start mb-2">
-            <div>
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide ${CATEGORY_COLORS[habit.category]}`}>
-                {habit.category}
-              </span>
-              <h3 className={`font-semibold text-lg mt-1 leading-tight ${isCompleted || isSkipped ? 'line-through text-gray-500' : 'text-gray-900 dark:text-white'}`}>
-                {habit.title}
-              </h3>
-              <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-1">
-                <Clock size={14} className="mr-1" />
-                {habit.time}
-                {habit.description && <span className="mx-1">•</span>}
-                {habit.description && <span className="truncate">{habit.description}</span>}
-              </div>
-            </div>
-            
-            {isCompleted && (
-              <div className="flex flex-col items-end gap-1">
-                <div className="p-1.5 bg-green-100 text-green-600 rounded-full flex-shrink-0"><Check size={18} /></div>
-                {loggedValue && (
-                  <span className="text-xs font-bold text-green-600 dark:text-green-400">
-                    {loggedValue} {unitLabel}
-                  </span>
-                )}
-              </div>
+        
+        {/* Status Badge or Time */}
+        <div className="text-right">
+            {isCompleted ? (
+                 <div className="flex flex-col items-end">
+                    <div className="bg-green-500 text-white p-1 rounded-full"><Check size={12} strokeWidth={4} /></div>
+                    {loggedValue && <span className="text-[10px] font-bold text-green-600 mt-1">{loggedValue} {unitLabel}</span>}
+                 </div>
+            ) : isSkipped ? (
+                 <div className="bg-gray-400 text-white p-1 rounded-full"><SkipForward size={12} strokeWidth={3} /></div>
+            ) : (
+                <div className="flex flex-col items-end">
+                    <span className="text-xs font-bold text-gray-400 dark:text-gray-500">{habit.time}</span>
+                </div>
             )}
-            {isSkipped && <div className="p-1.5 bg-gray-200 text-gray-500 rounded-full flex-shrink-0"><SkipForward size={18} /></div>}
-          </div>
         </div>
       </div>
 
-      {isPending ? (
-        <div className="mt-3 ml-16">
-           {showInput ? (
-             <div className="flex items-center gap-2 animate-in fade-in slide-in-from-top-1 duration-200">
-                <input 
-                  type="number" 
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  placeholder={unitLabel}
-                  autoFocus
-                  className="w-20 p-2 text-center rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-lg font-bold outline-none ring-2 ring-primary/50"
-                />
-                <button 
-                  onClick={handleComplete}
-                  className="flex-1 bg-primary text-white py-2.5 rounded-xl font-bold"
-                >
-                  Save
-                </button>
-             </div>
-           ) : (
-            <div className="flex gap-2">
+      {/* Middle: Title */}
+      <div className="flex-1 mb-3">
+        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded text-xs uppercase tracking-wider mb-1 inline-block ${CATEGORY_COLORS[habit.category]}`}>
+            {habit.category.split(' ')[0]}
+        </span>
+        <h3 className={`font-semibold text-sm leading-tight ${isCompleted || isSkipped ? 'line-through text-gray-500' : 'text-gray-900 dark:text-white'}`}>
+            {habit.title}
+        </h3>
+        {habit.description && (
+            <p className="text-[10px] text-gray-400 mt-1 line-clamp-1">{habit.description}</p>
+        )}
+      </div>
+
+      {/* Bottom: Actions */}
+      <div className="mt-auto">
+          {isPending ? (
+             showInput ? (
+                 <div className="flex items-center gap-1 animate-in slide-in-from-bottom-2 fade-in">
+                    <input 
+                      type="number" 
+                      value={inputValue}
+                      onChange={(e) => setInputValue(e.target.value)}
+                      placeholder={unitLabel}
+                      autoFocus
+                      className="w-full min-w-0 p-2 text-center rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-bold outline-none ring-2 ring-primary/50"
+                    />
+                    <button 
+                      onClick={handleComplete}
+                      className="bg-primary text-white p-2 rounded-lg"
+                    >
+                      <Check size={16} />
+                    </button>
+                 </div>
+             ) : (
+                <div className="flex gap-2">
+                    <button 
+                        onClick={handleComplete}
+                        className="flex-1 bg-primary hover:bg-sky-600 text-white py-2 rounded-lg font-semibold flex items-center justify-center transition-colors shadow-sm text-sm"
+                    >
+                        {requiresValue ? 'Log' : 'Done'}
+                    </button>
+                    <button 
+                        onClick={() => onAction(habit.id, HabitStatus.SKIPPED)}
+                        className="bg-gray-100 hover:bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400 px-3 rounded-lg transition-colors"
+                    >
+                        <SkipForward size={16} />
+                    </button>
+                </div>
+             )
+          ) : (
               <button 
-                onClick={handleComplete}
-                className="flex-1 bg-primary hover:bg-sky-600 text-white py-2.5 rounded-xl font-semibold flex items-center justify-center gap-2 transition-colors shadow-lg shadow-sky-500/20 text-sm"
-              >
-                <Check size={16} /> {requiresValue ? 'Log' : 'Done'}
-              </button>
-              <button 
-                onClick={() => onAction(habit.id, HabitStatus.SKIPPED)}
-                className="flex-none bg-gray-100 hover:bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 px-4 rounded-xl font-medium transition-colors text-sm"
-              >
-                Skip
-              </button>
-            </div>
-           )}
-        </div>
-      ) : (
-        <div className="flex justify-end mt-2">
-            <button 
                 onClick={() => {
                   setInputValue('');
                   setShowInput(false);
                   onAction(habit.id, HabitStatus.PENDING);
                 }}
-                className="text-xs font-medium text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-            >
-                <RotateCcw size={12} /> Undo
-            </button>
-        </div>
-      )}
+                className="w-full text-xs font-medium text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 flex items-center justify-center gap-1 py-1.5 rounded-lg hover:bg-white/50 dark:hover:bg-black/20 transition-colors"
+              >
+                  <RotateCcw size={12} /> Undo
+              </button>
+          )}
+      </div>
     </div>
   );
 };

@@ -187,7 +187,8 @@ export default function App() {
                     ></div>
                 </div>
 
-                <div className="space-y-3 pb-8">
+                {/* Grid Layout for Habits */}
+                <div className="grid grid-cols-2 gap-3 pb-8">
                     {sortedHabits.map(habit => {
                         const log = logs.find(l => l.habitId === habit.id);
                         return (
