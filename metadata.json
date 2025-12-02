@@ -1,0 +1,7 @@
+{
+  "name": "My Daily Lifestyle Coach",
+  "description": "A comprehensive lifestyle tracker with daily routines, supplement reminders, and progress analytics.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
