@@ -20,7 +20,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  password?: string; // In a real app, this would be hashed. Storing plain for demo simulation.
+  password?: string;
   authType: 'email' | 'google' | 'apple';
   createdAt: number;
 }
@@ -29,19 +29,20 @@ export interface Habit {
   id: string;
   title: string;
   description?: string;
-  time: string; // HH:mm format
+  time: string;
   category: Category;
-  icon?: string; // Emoji or icon name
-  frequency: number[]; // Array of days 0-6 (Sun-Sat). If empty/undefined, assume daily.
+  icon?: string;
+  frequency: number[];
   enabled: boolean;
 }
 
 export interface DailyLog {
-  date: string; // YYYY-MM-DD
+  id?: string; // Unique ID for specific log entries (e.g. multiple study sessions)
+  date: string;
   habitId: string;
   status: HabitStatus;
   timestamp: number;
-  value?: number; // Duration in minutes or hours
+  value?: number; // Duration in minutes
 }
 
 export interface QuoteResponse {

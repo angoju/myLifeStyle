@@ -1,3 +1,4 @@
+
 import { DailyLog, Habit, User, Category } from '../types';
 import { DEFAULT_HABITS } from '../constants';
 
@@ -40,15 +41,13 @@ export const registerUser = (name: string, email: string, password?: string, aut
     id: Math.random().toString(36).substr(2, 9),
     name,
     email,
-    password, // In real app, hash this
+    password, 
     authType,
     createdAt: Date.now()
   };
 
   users.push(newUser);
   safeSet(USERS_KEY, JSON.stringify(users));
-  
-  // Initialize default habits
   safeSet(`lc_${newUser.id}_habits`, JSON.stringify(DEFAULT_HABITS));
   
   return newUser;
@@ -59,12 +58,9 @@ export const authenticateUser = (email: string, password?: string): User => {
   const user = users.find(u => u.email === email);
   
   if (!user) throw new Error("User not found");
-  
-  // For simulated auth, we check simple string match if password provided
   if (user.authType === 'email' && password && user.password !== password) {
     throw new Error("Invalid password");
   }
-  
   return user;
 };
 
@@ -80,7 +76,6 @@ export const deleteAccount = (userId: string) => {
   const users = getUsers().filter(u => u.id !== userId);
   safeSet(USERS_KEY, JSON.stringify(users));
   
-  // Cleanup user data
   localStorage.removeItem(`lc_${userId}_habits`);
   localStorage.removeItem(`lc_${userId}_logs`);
   localStorage.removeItem(`lc_${userId}_settings`);
@@ -107,11 +102,9 @@ export const getHabits = (): Habit[] => {
       return DEFAULT_HABITS;
     }
     
-    // Auto-update: If user is missing the new Education habits (simple check by count or ID), merge them.
-    // This ensures existing users see the new "features" without deleting their data.
     const userHabits = JSON.parse(stored) as Habit[];
+    // Auto-inject education habits if missing (migration)
     const hasEducation = userHabits.some(h => h.category === Category.EDUCATION);
-    
     if (!hasEducation) {
         const eduHabits = DEFAULT_HABITS.filter(h => h.category === Category.EDUCATION || h.category === Category.SLEEP);
         const merged = [...userHabits, ...eduHabits];
@@ -143,16 +136,45 @@ export const getLogs = (): DailyLog[] => {
 export const saveLog = (log: DailyLog) => {
   try {
     const logs = getLogs();
-    const filtered = logs.filter(l => !(l.habitId === log.habitId && l.date === log.date));
-    filtered.push(log);
-    safeSet(getUserKey('logs'), JSON.stringify(filtered));
+    let updatedLogs = [];
+
+    // If log has an ID (Education/Sleep session), we append it (allowing multiples per day)
+    // If log has no ID (Standard Habit), we replace any existing entry for that day/habit
+    if (log.id) {
+        updatedLogs = [...logs, log];
+    } else {
+        updatedLogs = logs.filter(l => !(l.habitId === log.habitId && l.date === log.date));
+        updatedLogs.push(log);
+    }
+    
+    safeSet(getUserKey('logs'), JSON.stringify(updatedLogs));
   } catch (e) {}
 };
 
-export const deleteLog = (habitId: string, date: string) => {
+export const updateLogValue = (logId: string, newValue: number) => {
   try {
     const logs = getLogs();
-    const filtered = logs.filter(l => !(l.habitId === habitId && l.date === date));
+    const index = logs.findIndex(l => l.id === logId);
+    if (index !== -1) {
+      logs[index].value = newValue;
+      safeSet(getUserKey('logs'), JSON.stringify(logs));
+    }
+  } catch (e) {}
+};
+
+export const deleteLog = (habitId: string, date: string, logId?: string) => {
+  try {
+    const logs = getLogs();
+    let filtered;
+    
+    if (logId) {
+        // Delete specific session by ID
+        filtered = logs.filter(l => l.id !== logId);
+    } else {
+        // Delete all logs for that habit on that date (Standard toggle behavior)
+        filtered = logs.filter(l => !(l.habitId === habitId && l.date === date));
+    }
+    
     safeSet(getUserKey('logs'), JSON.stringify(filtered));
   } catch (e) {}
 };

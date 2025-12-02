@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import { BarChart2, Home, Settings, Calendar, Bell } from 'lucide-react';
 import { Habit, DailyLog, HabitStatus, Category, QuoteResponse, User } from './types';
-import { getHabits, saveHabits, getTodayLogs, saveLog, deleteLog, getSettings, saveSettings, getCurrentUserId, getUsers, logoutUser } from './services/storageService';
+import { getHabits, saveHabits, getTodayLogs, saveLog, deleteLog, updateLogValue, getSettings, saveSettings, getCurrentUserId, getUsers, logoutUser } from './services/storageService';
 import { fetchMotivationalQuote } from './services/geminiService';
 import HabitCard from './components/HabitCard';
 import Dashboard from './components/Dashboard';
@@ -61,7 +62,6 @@ export default function App() {
       fetchMotivationalQuote(context).then(setQuote);
     }
     
-    // Notification permission request (Simulated for Web)
     if (Notification.permission === 'default' && settings.notifications) {
         Notification.requestPermission();
     }
@@ -88,9 +88,12 @@ export default function App() {
 
   const handleHabitAction = (habitId: string, status: HabitStatus, value?: number) => {
     const date = new Date().toISOString().split('T')[0];
+    
     if (status === HabitStatus.PENDING) {
+      // Undo action (removes all logs for this habit/day)
       deleteLog(habitId, date);
     } else {
+      // Create new log
       const newLog: DailyLog = {
         date,
         habitId,
@@ -98,9 +101,26 @@ export default function App() {
         timestamp: Date.now(),
         value
       };
+      
+      // Assign unique ID for education/sleep logs to allow multiple entries
+      if (value !== undefined) {
+          newLog.id = generateId();
+      }
+
       saveLog(newLog);
     }
     setLogs(getTodayLogs());
+  };
+
+  const handleUpdateLog = (logId: string, newValue: number) => {
+      updateLogValue(logId, newValue);
+      setLogs(getTodayLogs());
+  };
+
+  const handleDeleteLog = (habitId: string, logId: string) => {
+      const date = new Date().toISOString().split('T')[0];
+      deleteLog(habitId, date, logId);
+      setLogs(getTodayLogs());
   };
 
   const saveHabit = (habitData: Partial<Habit>) => {
@@ -144,7 +164,6 @@ export default function App() {
     saveSettings({ ...getSettings(), darkMode: newMode });
   };
 
-  // --- Filtering Daily Habits ---
   const getDailyHabits = () => {
     const todayIndex = new Date().getDay();
     return habits
@@ -153,11 +172,15 @@ export default function App() {
   };
 
   const activeHabits = getDailyHabits();
+  
+  // Calculate distinct completed habits (ignoring multiple session logs for same habit)
+  const distinctCompletedHabits = new Set(
+      logs.filter(l => l.status === HabitStatus.COMPLETED).map(l => l.habitId)
+  );
+  
   const progress = activeHabits.length > 0 
-    ? Math.round((logs.filter(l => l.status === HabitStatus.COMPLETED).length / activeHabits.length) * 100) 
+    ? Math.round((distinctCompletedHabits.size / activeHabits.length) * 100) 
     : 0;
-
-  // --- Rendering ---
 
   if (!currentUser) {
     return <AuthScreen onLogin={checkAuth} />;
@@ -166,7 +189,6 @@ export default function App() {
   return (
     <div className={`min-h-[100dvh] flex flex-col bg-gray-50 dark:bg-dark w-full transition-colors duration-300`}>
       
-      {/* Dynamic Header */}
       {activeTab === 'home' && (
         <header className="px-6 pt-12 pb-6 bg-white dark:bg-card shadow-sm z-10 sticky top-0 rounded-b-3xl">
           <div className="flex justify-between items-center mb-6">
@@ -178,7 +200,6 @@ export default function App() {
                 Hello, {currentUser.name.split(' ')[0]}
               </h1>
             </div>
-            {/* Progress Circle (Small) */}
             <div className="relative w-12 h-12 flex items-center justify-center">
                <svg className="w-full h-full transform -rotate-90">
                  <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-gray-200 dark:text-gray-700" />
@@ -188,7 +209,6 @@ export default function App() {
             </div>
           </div>
 
-          {/* Quote Card */}
           {quote && (
             <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-4 text-white shadow-lg shadow-indigo-500/20 mb-2">
               <div className="flex items-start gap-3">
@@ -202,7 +222,6 @@ export default function App() {
         </header>
       )}
 
-      {/* Main Content Area */}
       <main className="flex-1 px-4 py-6 overflow-y-auto w-full max-w-2xl mx-auto pb-32">
         {activeTab === 'home' && (
            <div className="space-y-4">
@@ -215,14 +234,22 @@ export default function App() {
               ) : (
                 <div className="grid grid-cols-2 gap-3">
                     {activeHabits.map(habit => {
-                    const log = logs.find(l => l.habitId === habit.id);
+                    // Aggregate logs for this habit (e.g. sum up 45m + 30m physics study)
+                    const habitLogs = logs.filter(l => l.habitId === habit.id && l.status === HabitStatus.COMPLETED);
+                    const totalValue = habitLogs.reduce((sum, l) => sum + (l.value || 0), 0);
+                    // Determine status based on whether *any* log exists
+                    const currentStatus = habitLogs.length > 0 ? HabitStatus.COMPLETED : logs.find(l => l.habitId === habit.id)?.status;
+                    
                     return (
                         <HabitCard 
                             key={habit.id}
                             habit={habit} 
-                            status={log?.status}
-                            loggedValue={log?.value}
+                            status={currentStatus}
+                            logs={habitLogs} // Pass the individual logs for editing
+                            loggedValue={totalValue} 
                             onAction={handleHabitAction}
+                            onUpdateLog={handleUpdateLog}
+                            onDeleteLog={handleDeleteLog}
                         />
                     );
                     })}
@@ -232,9 +259,7 @@ export default function App() {
         )}
 
         {activeTab === 'dashboard' && <Dashboard habits={habits} />}
-        
         {activeTab === 'history' && <HistoryScreen habits={habits} />}
-        
         {activeTab === 'settings' && (
             <SettingsScreen 
                 user={currentUser}
@@ -250,7 +275,6 @@ export default function App() {
         )}
       </main>
 
-      {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-card border-t border-gray-100 dark:border-gray-800 px-6 py-4 z-30 pb-safe shadow-[0_-5px_15px_rgba(0,0,0,0.02)]">
         <div className="flex justify-between items-center max-w-md mx-auto">
             <button 
@@ -287,7 +311,6 @@ export default function App() {
         </div>
       </nav>
 
-      {/* Modals */}
       {isEditorOpen && (
         <HabitEditor 
             initialHabit={editingHabit}

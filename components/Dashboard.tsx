@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
 import { DailyLog, Habit, HabitStatus, Category } from '../types';
@@ -14,12 +15,14 @@ const Dashboard: React.FC<DashboardProps> = ({ habits }) => {
   const todayStr = new Date().toISOString().split('T')[0];
   const todayLogs = logs.filter(l => l.date === todayStr);
   const activeHabitsCount = habits.filter(h => h.enabled).length;
-  const completedToday = todayLogs.filter(l => l.status === HabitStatus.COMPLETED).length;
-  const skippedToday = todayLogs.filter(l => l.status === HabitStatus.SKIPPED).length;
+  
+  // Count distinct completed habits (ignoring multiple session logs)
+  const distinctCompleted = new Set(todayLogs.filter(l => l.status === HabitStatus.COMPLETED).map(l => l.habitId)).size;
+  const distinctSkipped = new Set(todayLogs.filter(l => l.status === HabitStatus.SKIPPED).map(l => l.habitId)).size;
 
-  const effectiveTotal = Math.max(0, activeHabitsCount - skippedToday);
+  const effectiveTotal = Math.max(0, activeHabitsCount - distinctSkipped);
   const progress = effectiveTotal > 0 
-    ? Math.round((completedToday / effectiveTotal) * 100) 
+    ? Math.round((distinctCompleted / effectiveTotal) * 100) 
     : 0;
 
   // Weekly Habit Consistency Data
@@ -29,10 +32,13 @@ const Dashboard: React.FC<DashboardProps> = ({ habits }) => {
       const d = new Date();
       d.setDate(d.getDate() - i);
       const dateStr = d.toISOString().split('T')[0];
+      // Count distinct completed habits per day
       const dayLogs = logs.filter(l => l.date === dateStr && l.status === HabitStatus.COMPLETED);
+      const distinctCount = new Set(dayLogs.map(l => l.habitId)).size;
+      
       data.push({
         name: d.toLocaleDateString('en-US', { weekday: 'short' }),
-        completed: dayLogs.length
+        completed: distinctCount
       });
     }
     return data;
@@ -45,19 +51,22 @@ const Dashboard: React.FC<DashboardProps> = ({ habits }) => {
     
     const data = [];
 
-    // Process Education
+    // Process Education - Sum up values
     educationHabits.forEach(h => {
-        const log = todayLogs.find(l => l.habitId === h.id && l.status === HabitStatus.COMPLETED);
-        if (log && log.value) {
-            data.push({ name: h.title.split(' ')[0], value: log.value, fill: '#ec4899' }); // Pink for education
+        const habitLogs = todayLogs.filter(l => l.habitId === h.id && l.status === HabitStatus.COMPLETED);
+        const totalValue = habitLogs.reduce((sum, l) => sum + (l.value || 0), 0);
+        
+        if (totalValue > 0) {
+            data.push({ name: h.title.split(' ')[0], value: totalValue, fill: '#ec4899' }); // Pink
         }
     });
 
     // Process Sleep
     if (sleepHabit) {
-        const log = todayLogs.find(l => l.habitId === sleepHabit.id && l.status === HabitStatus.COMPLETED);
-        if (log && log.value) {
-            data.push({ name: 'Sleep (hrs)', value: log.value, fill: '#6366f1' }); // Indigo for sleep
+        const habitLogs = todayLogs.filter(l => l.habitId === sleepHabit.id && l.status === HabitStatus.COMPLETED);
+        const totalValue = habitLogs.reduce((sum, l) => sum + (l.value || 0), 0);
+        if (totalValue > 0) {
+            data.push({ name: 'Sleep (hrs)', value: totalValue, fill: '#6366f1' }); // Indigo
         }
     }
 
@@ -65,9 +74,9 @@ const Dashboard: React.FC<DashboardProps> = ({ habits }) => {
   }, [todayLogs, habits]);
 
   const pieData = [
-    { name: 'Completed', value: completedToday, color: '#22c55e' },
-    { name: 'Skipped', value: skippedToday, color: '#9ca3af' },
-    { name: 'Remaining', value: Math.max(0, activeHabitsCount - completedToday - skippedToday), color: '#1e293b' }
+    { name: 'Completed', value: distinctCompleted, color: '#22c55e' },
+    { name: 'Skipped', value: distinctSkipped, color: '#9ca3af' },
+    { name: 'Remaining', value: Math.max(0, activeHabitsCount - distinctCompleted - distinctSkipped), color: '#1e293b' }
   ];
 
   return (
@@ -78,7 +87,7 @@ const Dashboard: React.FC<DashboardProps> = ({ habits }) => {
           <p className="text-gray-500 text-sm font-medium">Daily Completion</p>
           <div className="flex items-end gap-2 mt-1">
             <span className="text-3xl font-bold text-primary">{progress}%</span>
-            {skippedToday > 0 && <span className="text-xs text-gray-400 mb-1">({skippedToday} skipped)</span>}
+            {distinctSkipped > 0 && <span className="text-xs text-gray-400 mb-1">({distinctSkipped} skipped)</span>}
           </div>
         </div>
         <div className="bg-white dark:bg-card p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
@@ -142,28 +151,6 @@ const Dashboard: React.FC<DashboardProps> = ({ habits }) => {
             <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-slate-800"></div> To Do</div>
         </div>
       </div>
-
-      {/* Bar Chart */}
-      <div className="bg-white dark:bg-card p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
-        <h3 className="font-semibold text-lg mb-4 text-gray-900 dark:text-white">Weekly Consistency</h3>
-        <div className="h-48 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={weeklyData}>
-              <XAxis 
-                dataKey="name" 
-                axisLine={false} 
-                tickLine={false} 
-                tick={{fill: '#94a3b8', fontSize: 12}} 
-              />
-              <Tooltip 
-                cursor={{fill: 'transparent'}}
-                contentStyle={{ borderRadius: '8px', border: 'none', background: '#1e293b', color: '#fff' }}
-              />
-              <Bar dataKey="completed" fill="#0ea5e9" radius={[4, 4, 0, 0]} barSize={20} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
       
       {/* Logs Table */}
       <div className="bg-white dark:bg-card p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
@@ -178,7 +165,7 @@ const Dashboard: React.FC<DashboardProps> = ({ habits }) => {
                       </tr>
                   </thead>
                   <tbody>
-                      {todayLogs.filter(l => [HabitStatus.COMPLETED, HabitStatus.SKIPPED].includes(l.status)).slice(0, 5).map((log, i) => {
+                      {todayLogs.filter(l => [HabitStatus.COMPLETED, HabitStatus.SKIPPED].includes(l.status)).sort((a,b) => b.timestamp - a.timestamp).slice(0, 5).map((log, i) => {
                           const habit = habits.find(h => h.id === log.habitId);
                           return (
                               <tr key={i} className="border-b dark:border-gray-700">

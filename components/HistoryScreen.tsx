@@ -1,12 +1,21 @@
 
 import React from 'react';
 import { DailyLog, Habit, HabitStatus } from '../types';
-import { Check, X, SkipForward } from 'lucide-react';
+import { Check, SkipForward } from 'lucide-react';
 import { getLogs } from '../services/storageService';
 
 interface HistoryScreenProps {
   habits: Habit[];
 }
+
+const formatHistoryDuration = (minutes: number) => {
+    if (!minutes) return '';
+    const hrs = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hrs > 0 && mins > 0) return `${hrs}h ${mins}m`;
+    if (hrs > 0) return `${hrs}h`;
+    return `${mins}m`;
+};
 
 const HistoryScreen: React.FC<HistoryScreenProps> = ({ habits }) => {
   const logs = getLogs().sort((a, b) => b.timestamp - a.timestamp);
@@ -30,22 +39,31 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ habits }) => {
 
       {Object.entries(groupedLogs).map(([date, dayLogs]) => (
         <div key={date} className="bg-white dark:bg-card rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-800">
-          <h3 className="text-sm font-bold text-gray-500 uppercase mb-3">
+          <h3 className="text-xs font-bold text-gray-400 uppercase mb-3 tracking-wider">
             {new Date(date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
           </h3>
-          <div className="space-y-3">
+          <div className="space-y-2">
             {dayLogs.map((log, idx) => {
               const habit = habits.find(h => h.id === log.habitId);
               return (
-                <div key={`${date}-${idx}`} className="flex items-center justify-between border-b border-gray-50 dark:border-gray-800 pb-2 last:border-0 last:pb-0">
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-white text-sm">{habit?.title || 'Deleted Habit'}</p>
-                    <p className="text-xs text-gray-400">{new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                <div key={`${date}-${idx}-${log.id || 'std'}`} className="flex items-center justify-between border-b border-gray-50 dark:border-gray-800 pb-2 last:border-0 last:pb-0">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-mono text-gray-400 bg-gray-50 dark:bg-gray-800 px-1.5 py-0.5 rounded">
+                        {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
+                    </span>
+                    <div>
+                        <p className="font-semibold text-gray-900 dark:text-white text-sm leading-none">{habit?.title || 'Unknown Habit'}</p>
+                        {log.value && log.value > 0 && (
+                            <p className="text-[10px] text-indigo-500 font-bold mt-0.5">
+                                Logged: {formatHistoryDuration(log.value)}
+                            </p>
+                        )}
+                    </div>
                   </div>
-                  <div className={`px-2 py-1 rounded-md text-xs font-bold flex items-center gap-1
-                    ${log.status === HabitStatus.COMPLETED ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}
+                  <div className={`px-2 py-1 rounded-md text-[10px] font-bold flex items-center gap-1 uppercase tracking-wide
+                    ${log.status === HabitStatus.COMPLETED ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-500'}
                   `}>
-                    {log.status === HabitStatus.COMPLETED ? <Check size={12} /> : <SkipForward size={12} />}
+                    {log.status === HabitStatus.COMPLETED ? <Check size={10} /> : <SkipForward size={10} />}
                     {log.status}
                   </div>
                 </div>
