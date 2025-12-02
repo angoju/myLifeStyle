@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Settings, BarChart2, List, Plus, Moon, Sun, Bell, Volume2 } from 'lucide-react';
 import { Habit, DailyLog, HabitStatus, Category, QuoteResponse } from './types';
-import { getHabits, saveHabits, getTodayLogs, saveLog, getSettings, saveSettings } from './services/storageService';
+import { getHabits, saveHabits, getTodayLogs, saveLog, deleteLog, getSettings, saveSettings } from './services/storageService';
 import { fetchMotivationalQuote } from './services/geminiService';
 import HabitCard from './components/HabitCard';
 import Dashboard from './components/Dashboard';
@@ -66,13 +66,19 @@ export default function App() {
   };
 
   const handleHabitAction = (id: string, status: HabitStatus) => {
-    const newLog: DailyLog = {
-      date: new Date().toISOString().split('T')[0],
-      habitId: id,
-      status,
-      timestamp: Date.now()
-    };
-    saveLog(newLog);
+    const today = new Date().toISOString().split('T')[0];
+    
+    if (status === HabitStatus.PENDING) {
+      deleteLog(id, today);
+    } else {
+      const newLog: DailyLog = {
+        date: today,
+        habitId: id,
+        status,
+        timestamp: Date.now()
+      };
+      saveLog(newLog);
+    }
     setLogs(getTodayLogs()); // Refresh logs
   };
 
@@ -87,7 +93,7 @@ export default function App() {
             id: generateId(),
             title: editingHabit.title!,
             time: editingHabit.time!,
-            category: editingHabit.category || Category.FITNESS,
+            category: editingHabit.category || Category.MORNING,
             description: editingHabit.description || '',
             enabled: true
         };
@@ -209,7 +215,7 @@ export default function App() {
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-xl font-bold">Manage Habits</h2>
                     <button 
-                        onClick={() => { setEditingHabit({}); setIsEditorOpen(true); }}
+                        onClick={() => { setEditingHabit({category: Category.MORNING}); setIsEditorOpen(true); }}
                         className="bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2"
                     >
                         <Plus size={16} /> New Habit
@@ -268,7 +274,7 @@ export default function App() {
       {/* Habit Editor Modal */}
       {isEditorOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-              <div className="bg-white dark:bg-gray-900 w-full max-w-sm rounded-3xl p-6 shadow-xl animate-in fade-in zoom-in duration-200">
+              <div className="bg-white dark:bg-gray-900 w-full max-w-sm rounded-3xl p-6 shadow-xl animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
                   <h3 className="text-xl font-bold mb-4">{editingHabit.id ? 'Edit Habit' : 'New Habit'}</h3>
                   <div className="space-y-4">
                       <div>
@@ -281,27 +287,37 @@ export default function App() {
                             placeholder="e.g. Drink Water"
                           />
                       </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="text-xs font-semibold uppercase text-gray-500 mb-1 block">Time</label>
-                            <input 
-                                type="time" 
-                                value={editingHabit.time || ''} 
-                                onChange={e => setEditingHabit({...editingHabit, time: e.target.value})}
-                                className="w-full bg-gray-50 dark:bg-gray-800 border-none rounded-xl p-3 focus:ring-2 focus:ring-primary outline-none"
-                            />
-                        </div>
-                         <div>
-                            <label className="text-xs font-semibold uppercase text-gray-500 mb-1 block">Category</label>
-                            <select 
-                                value={editingHabit.category || Category.MORNING} 
-                                onChange={e => setEditingHabit({...editingHabit, category: e.target.value as Category})}
-                                className="w-full bg-gray-50 dark:bg-gray-800 border-none rounded-xl p-3 focus:ring-2 focus:ring-primary outline-none appearance-none"
-                            >
-                                {Object.values(Category).map(c => <option key={c} value={c}>{c}</option>)}
-                            </select>
-                        </div>
+                      <div>
+                          <label className="text-xs font-semibold uppercase text-gray-500 mb-1 block">Time</label>
+                          <input 
+                              type="time" 
+                              value={editingHabit.time || ''} 
+                              onChange={e => setEditingHabit({...editingHabit, time: e.target.value})}
+                              className="w-full bg-gray-50 dark:bg-gray-800 border-none rounded-xl p-3 focus:ring-2 focus:ring-primary outline-none"
+                          />
                       </div>
+                      
+                      {/* Visual Category Chips */}
+                      <div>
+                          <label className="text-xs font-semibold uppercase text-gray-500 mb-2 block">Category</label>
+                          <div className="grid grid-cols-2 gap-2">
+                              {Object.values(Category).map(cat => (
+                                  <button
+                                      key={cat}
+                                      onClick={() => setEditingHabit({...editingHabit, category: cat})}
+                                      className={`
+                                          p-2 rounded-xl text-xs font-bold border transition-all
+                                          ${editingHabit.category === cat 
+                                              ? 'border-primary bg-primary/10 text-primary ring-1 ring-primary' 
+                                              : 'border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'}
+                                      `}
+                                  >
+                                      {cat}
+                                  </button>
+                              ))}
+                          </div>
+                      </div>
+
                       <div>
                           <label className="text-xs font-semibold uppercase text-gray-500 mb-1 block">Description</label>
                           <input 

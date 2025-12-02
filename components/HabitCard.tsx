@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Check, X, SkipForward, Clock,
+  Check, X, SkipForward, Clock, RotateCcw,
   Droplet, Pill, Nut, Utensils, Coffee, Sprout, Sun, Moon, Dumbbell, Zap
 } from 'lucide-react';
 import { Habit, HabitStatus, Category } from '../types';
@@ -88,7 +88,7 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, status, onAction }) => {
         </div>
       </div>
 
-      {isPending && (
+      {isPending ? (
         <div className="flex gap-2 mt-3 ml-16">
           <button 
             onClick={() => onAction(habit.id, HabitStatus.COMPLETED)}
@@ -102,6 +102,15 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, status, onAction }) => {
           >
             Skip
           </button>
+        </div>
+      ) : (
+        <div className="flex justify-end mt-2">
+            <button 
+                onClick={() => onAction(habit.id, HabitStatus.PENDING)}
+                className="text-xs font-medium text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            >
+                <RotateCcw size={12} /> Undo
+            </button>
         </div>
       )}
     </div>

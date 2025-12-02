@@ -49,6 +49,12 @@ export const saveLog = (log: DailyLog) => {
   safeSet(LOGS_KEY, JSON.stringify(filtered));
 };
 
+export const deleteLog = (habitId: string, date: string) => {
+  const logs = getLogs();
+  const filtered = logs.filter(l => !(l.habitId === habitId && l.date === date));
+  safeSet(LOGS_KEY, JSON.stringify(filtered));
+};
+
 export const getTodayLogs = (): DailyLog[] => {
   const today = new Date().toISOString().split('T')[0];
   return getLogs().filter(l => l.date === today);
