@@ -37,10 +37,17 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ habits }) => {
           </div>
       )}
 
-      {Object.entries(groupedLogs).map(([date, dayLogs]) => (
+      {Object.entries(groupedLogs).map(([date, dayLogs]) => {
+        // Fix Date Parsing: 
+        // new Date("2023-12-03") assumes UTC midnight. 
+        // We explicitly treat it as local components to ensure it renders "Dec 3" not "Dec 2".
+        const [y, m, d] = date.split('-').map(Number);
+        const displayDate = new Date(y, m - 1, d);
+        
+        return (
         <div key={date} className="bg-white dark:bg-card rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-800">
           <h3 className="text-xs font-bold text-gray-400 uppercase mb-3 tracking-wider">
-            {new Date(date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
+            {displayDate.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
           </h3>
           <div className="space-y-2">
             {dayLogs.map((log, idx) => {
@@ -71,7 +78,7 @@ const HistoryScreen: React.FC<HistoryScreenProps> = ({ habits }) => {
             })}
           </div>
         </div>
-      ))}
+      )})}
     </div>
   );
 };

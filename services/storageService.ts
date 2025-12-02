@@ -19,6 +19,16 @@ const safeSet = (key: string, value: string) => {
   } catch (e) {}
 };
 
+// --- Date Helpers (Local Timezone Fix) ---
+
+export const getLocalDate = (): string => {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 // --- User Management ---
 
 export const getCurrentUserId = (): string | null => {
@@ -48,7 +58,7 @@ export const registerUser = (name: string, email: string, password?: string, aut
 
   users.push(newUser);
   safeSet(USERS_KEY, JSON.stringify(users));
-  // Initialize with empty array instead of defaults
+  // Initialize with empty array to ensure clean state
   safeSet(`lc_${newUser.id}_habits`, JSON.stringify([]));
   
   return newUser;
@@ -98,12 +108,24 @@ export const getHabits = (): Habit[] => {
   try {
     const key = getUserKey('habits');
     const stored = safeGet(key);
+    
     if (!stored) {
-      // Return empty array to keep home screen clean
       safeSet(key, JSON.stringify([]));
       return [];
     }
-    return JSON.parse(stored) as Habit[];
+
+    const habits = JSON.parse(stored) as Habit[];
+
+    // ONE-TIME CLEANUP: If we detect the old "Pepper + Ginger" default habit (id: '1'), 
+    // we clear the list to ensure the user gets the requested "Empty State".
+    // This fixes the "I don't see changes" issue for existing users.
+    const hasLegacyDefault = habits.some(h => h.id === '1' && h.title.includes('Ginger'));
+    if (hasLegacyDefault) {
+        safeSet(key, JSON.stringify([]));
+        return [];
+    }
+
+    return habits;
   } catch (e) {
     return [];
   }
@@ -171,7 +193,7 @@ export const deleteLog = (habitId: string, date: string, logId?: string) => {
 };
 
 export const getTodayLogs = (): DailyLog[] => {
-  const today = new Date().toISOString().split('T')[0];
+  const today = getLocalDate();
   return getLogs().filter(l => l.date === today);
 };
 

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart2, Home, Settings, Calendar, Bell, Plus } from 'lucide-react';
 import { Habit, DailyLog, HabitStatus, Category, QuoteResponse, User } from './types';
-import { getHabits, saveHabits, getTodayLogs, saveLog, deleteLog, updateLogValue, getSettings, saveSettings, getCurrentUserId, getUsers, logoutUser } from './services/storageService';
+import { getHabits, saveHabits, getTodayLogs, saveLog, deleteLog, updateLogValue, getSettings, saveSettings, getCurrentUserId, getUsers, logoutUser, getLocalDate } from './services/storageService';
 import { fetchMotivationalQuote } from './services/geminiService';
 import HabitCard from './components/HabitCard';
 import Dashboard from './components/Dashboard';
@@ -87,7 +87,7 @@ export default function App() {
   // --- Habit Management ---
 
   const handleHabitAction = (habitId: string, status: HabitStatus, value?: number) => {
-    const date = new Date().toISOString().split('T')[0];
+    const date = getLocalDate();
     
     if (status === HabitStatus.PENDING) {
       // Undo action (removes all logs for this habit/day)
@@ -118,7 +118,7 @@ export default function App() {
   };
 
   const handleDeleteLog = (habitId: string, logId: string) => {
-      const date = new Date().toISOString().split('T')[0];
+      const date = getLocalDate();
       deleteLog(habitId, date, logId);
       setLogs(getTodayLogs());
   };
@@ -173,7 +173,7 @@ export default function App() {
 
   const activeHabits = getDailyHabits();
   
-  // Calculate distinct completed habits (ignoring multiple session logs for same habit)
+  // Calculate distinct completed habits
   const distinctCompletedHabits = new Set(
       logs.filter(l => l.status === HabitStatus.COMPLETED).map(l => l.habitId)
   );
@@ -228,49 +228,49 @@ export default function App() {
       <main className="flex-1 px-4 py-6 overflow-y-auto w-full max-w-2xl mx-auto pb-32">
         {activeTab === 'home' && (
            <div className="space-y-4 h-full">
-              {activeHabits.length > 0 && (
-                <div className="flex justify-between items-center px-2">
-                    <h2 className="text-lg font-bold text-gray-900 dark:text-white">Today's Routine</h2>
-                    <button 
-                    onClick={() => { setEditingHabit({}); setIsEditorOpen(true); }}
-                    className="w-8 h-8 bg-primary/10 text-primary rounded-full flex items-center justify-center hover:bg-primary/20 transition-colors active:scale-95"
-                    >
-                    <Plus size={18} strokeWidth={2.5} />
-                    </button>
-                </div>
-              )}
-              
-              {activeHabits.length === 0 ? (
+              {activeHabits.length > 0 ? (
+                <>
+                    <div className="flex justify-between items-center px-2">
+                        <h2 className="text-lg font-bold text-gray-900 dark:text-white">Today's Routine</h2>
+                        <button 
+                        onClick={() => { setEditingHabit({}); setIsEditorOpen(true); }}
+                        className="w-8 h-8 bg-primary/10 text-primary rounded-full flex items-center justify-center hover:bg-primary/20 transition-colors active:scale-95"
+                        >
+                        <Plus size={18} strokeWidth={2.5} />
+                        </button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                        {activeHabits.map(habit => {
+                        const habitLogs = logs.filter(l => l.habitId === habit.id && l.status === HabitStatus.COMPLETED);
+                        const totalValue = habitLogs.reduce((sum, l) => sum + (l.value || 0), 0);
+                        const currentStatus = habitLogs.length > 0 ? HabitStatus.COMPLETED : logs.find(l => l.habitId === habit.id)?.status;
+                        
+                        return (
+                            <HabitCard 
+                                key={habit.id}
+                                habit={habit} 
+                                status={currentStatus}
+                                logs={habitLogs} 
+                                loggedValue={totalValue} 
+                                onAction={handleHabitAction}
+                                onUpdateLog={handleUpdateLog}
+                                onDeleteLog={handleDeleteLog}
+                            />
+                        );
+                        })}
+                    </div>
+                </>
+              ) : (
+                /* Empty State UI: Label top, Button bottom/middle */
                  <div className="flex flex-col items-center justify-center h-[50vh] animate-in fade-in zoom-in duration-300">
-                    <p className="text-lg font-bold text-gray-600 dark:text-gray-300 mb-6">Add your daily routine</p>
+                    <p className="text-lg font-bold text-gray-400 dark:text-gray-500 mb-6 text-center">Add your daily routine</p>
                     <button 
                         onClick={() => { setEditingHabit({}); setIsEditorOpen(true); }}
-                        className="w-20 h-20 bg-primary text-white rounded-full flex items-center justify-center shadow-lg shadow-primary/30 hover:bg-sky-600 transition-all hover:scale-105 active:scale-95"
+                        className="w-20 h-20 bg-primary text-white rounded-full flex items-center justify-center shadow-2xl shadow-primary/40 hover:bg-sky-600 transition-all hover:scale-105 active:scale-95"
                     >
-                        <Plus size={40} />
+                        <Plus size={40} strokeWidth={2.5} />
                     </button>
                  </div>
-              ) : (
-                <div className="grid grid-cols-2 gap-3">
-                    {activeHabits.map(habit => {
-                    const habitLogs = logs.filter(l => l.habitId === habit.id && l.status === HabitStatus.COMPLETED);
-                    const totalValue = habitLogs.reduce((sum, l) => sum + (l.value || 0), 0);
-                    const currentStatus = habitLogs.length > 0 ? HabitStatus.COMPLETED : logs.find(l => l.habitId === habit.id)?.status;
-                    
-                    return (
-                        <HabitCard 
-                            key={habit.id}
-                            habit={habit} 
-                            status={currentStatus}
-                            logs={habitLogs} 
-                            loggedValue={totalValue} 
-                            onAction={handleHabitAction}
-                            onUpdateLog={handleUpdateLog}
-                            onDeleteLog={handleDeleteLog}
-                        />
-                    );
-                    })}
-                </div>
               )}
            </div>
         )}

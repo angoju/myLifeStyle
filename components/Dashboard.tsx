@@ -2,7 +2,7 @@
 import React, { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
 import { DailyLog, Habit, HabitStatus, Category } from '../types';
-import { getLogs } from '../services/storageService';
+import { getLogs, getLocalDate } from '../services/storageService';
 
 interface DashboardProps {
   habits: Habit[];
@@ -11,8 +11,8 @@ interface DashboardProps {
 const Dashboard: React.FC<DashboardProps> = ({ habits }) => {
   const logs = useMemo(() => getLogs(), []); 
   
-  // Calculate today's stats
-  const todayStr = new Date().toISOString().split('T')[0];
+  // Calculate today's stats using Local Date instead of UTC
+  const todayStr = getLocalDate();
   const todayLogs = logs.filter(l => l.date === todayStr);
   const activeHabitsCount = habits.filter(h => h.enabled).length;
   
@@ -31,7 +31,11 @@ const Dashboard: React.FC<DashboardProps> = ({ habits }) => {
     for (let i = 6; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);
-      const dateStr = d.toISOString().split('T')[0];
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      const dateStr = `${year}-${month}-${day}`;
+      
       // Count distinct completed habits per day
       const dayLogs = logs.filter(l => l.date === dateStr && l.status === HabitStatus.COMPLETED);
       const distinctCount = new Set(dayLogs.map(l => l.habitId)).size;
