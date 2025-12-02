@@ -1,3 +1,4 @@
+
 export enum Category {
   MORNING = 'Morning Routine',
   SUPPLEMENTS = 'Supplements',
@@ -11,6 +12,12 @@ export enum HabitStatus {
   PENDING = 'PENDING',
   COMPLETED = 'COMPLETED',
   SKIPPED = 'SKIPPED'
+}
+
+export interface User {
+  id: string;
+  name: string;
+  createdAt: number;
 }
 
 export interface Habit {
