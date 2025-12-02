@@ -38,7 +38,7 @@ export default function App() {
     }
     
     // Request notification permission if not denied
-    if (Notification.permission === 'default') {
+    if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
        // We don't block render, just lazy request
     }
 
@@ -115,6 +115,7 @@ export default function App() {
   };
 
   const requestNotification = async () => {
+      if (typeof Notification === 'undefined') return;
       const result = await Notification.requestPermission();
       if (result === 'granted') {
           new Notification("Notifications Enabled", { body: "You will receive alerts for your habits."});
@@ -125,10 +126,10 @@ export default function App() {
   const sortedHabits = [...habits].sort((a, b) => a.time.localeCompare(b.time));
 
   return (
-    <div className="min-h-screen pb-24 relative font-sans text-gray-800 dark:text-gray-100">
+    <div className="min-h-[100dvh] pb-32 relative font-sans text-gray-800 dark:text-gray-100 flex flex-col">
       
       {/* Header */}
-      <header className="sticky top-0 z-30 bg-white/80 dark:bg-dark/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 px-6 py-4 flex justify-between items-center">
+      <header className="sticky top-0 z-30 bg-white/90 dark:bg-dark/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 px-6 py-4 flex justify-between items-center supports-[backdrop-filter]:bg-white/60">
         <div>
            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
              Daily Coach
@@ -147,7 +148,7 @@ export default function App() {
         </div>
       </header>
 
-      <main className="px-4 py-6 max-w-lg mx-auto">
+      <main className="flex-1 px-4 py-6 max-w-lg mx-auto w-full">
         
         {/* Quote Widget */}
         {view === 'daily' && (
@@ -179,7 +180,7 @@ export default function App() {
                     ></div>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-3 pb-8">
                     {sortedHabits.map(habit => {
                         const log = logs.find(l => l.habitId === habit.id);
                         return (
@@ -204,7 +205,7 @@ export default function App() {
         {view === 'dashboard' && <Dashboard habits={habits} />}
         
         {view === 'editor' && (
-            <div className="bg-white dark:bg-card rounded-2xl p-4 shadow-sm">
+            <div className="bg-white dark:bg-card rounded-2xl p-4 shadow-sm pb-8">
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-xl font-bold">Manage Habits</h2>
                     <button 
@@ -241,7 +242,7 @@ export default function App() {
       </main>
 
       {/* Navigation Bar */}
-      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-white dark:bg-card border border-gray-200 dark:border-gray-700 rounded-full px-6 py-3 shadow-2xl flex items-center gap-8 z-40">
+      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-white dark:bg-card border border-gray-200 dark:border-gray-700 rounded-full px-6 py-3 shadow-2xl flex items-center gap-8 z-40 max-w-[90vw]">
         <button 
             onClick={() => setView('daily')}
             className={`flex flex-col items-center gap-1 ${view === 'daily' ? 'text-primary' : 'text-gray-400 hover:text-gray-600'}`}

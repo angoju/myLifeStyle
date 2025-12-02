@@ -1,10 +1,12 @@
 import { GoogleGenAI } from "@google/genai";
 import { QuoteResponse } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
 export const fetchMotivationalQuote = async (context: 'morning' | 'evening'): Promise<QuoteResponse> => {
   try {
+    // Initialize lazily to prevent top-level ReferenceError if process is undefined
+    const apiKey = process.env.API_KEY || '';
+    const ai = new GoogleGenAI({ apiKey });
+    
     const modelId = 'gemini-2.5-flash';
     const prompt = context === 'morning' 
       ? 'Give me a short, punchy motivational quote for waking up early and crushing health goals. JSON format: { "quote": "...", "author": "..." }' 
@@ -26,7 +28,7 @@ export const fetchMotivationalQuote = async (context: 'morning' | 'evening'): Pr
     console.error("Gemini API Error:", error);
     return {
       quote: "Discipline is doing what needs to be done, even if you don't want to do it.",
-      author: "Anonymous"
+      author: "Daily Coach"
     };
   }
 };
