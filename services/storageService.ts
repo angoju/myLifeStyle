@@ -48,7 +48,8 @@ export const registerUser = (name: string, email: string, password?: string, aut
 
   users.push(newUser);
   safeSet(USERS_KEY, JSON.stringify(users));
-  safeSet(`lc_${newUser.id}_habits`, JSON.stringify(DEFAULT_HABITS));
+  // Initialize with empty array instead of defaults
+  safeSet(`lc_${newUser.id}_habits`, JSON.stringify([]));
   
   return newUser;
 };
@@ -98,23 +99,13 @@ export const getHabits = (): Habit[] => {
     const key = getUserKey('habits');
     const stored = safeGet(key);
     if (!stored) {
-      safeSet(key, JSON.stringify(DEFAULT_HABITS));
-      return DEFAULT_HABITS;
+      // Return empty array to keep home screen clean
+      safeSet(key, JSON.stringify([]));
+      return [];
     }
-    
-    const userHabits = JSON.parse(stored) as Habit[];
-    // Auto-inject education habits if missing (migration)
-    const hasEducation = userHabits.some(h => h.category === Category.EDUCATION);
-    if (!hasEducation) {
-        const eduHabits = DEFAULT_HABITS.filter(h => h.category === Category.EDUCATION || h.category === Category.SLEEP);
-        const merged = [...userHabits, ...eduHabits];
-        safeSet(key, JSON.stringify(merged));
-        return merged;
-    }
-
-    return userHabits;
+    return JSON.parse(stored) as Habit[];
   } catch (e) {
-    return DEFAULT_HABITS;
+    return [];
   }
 };
 

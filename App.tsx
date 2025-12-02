@@ -227,29 +227,34 @@ export default function App() {
 
       <main className="flex-1 px-4 py-6 overflow-y-auto w-full max-w-2xl mx-auto pb-32">
         {activeTab === 'home' && (
-           <div className="space-y-4">
-              <div className="flex justify-between items-center px-2">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white">Today's Routine</h2>
-                <button 
-                  onClick={() => { setEditingHabit({}); setIsEditorOpen(true); }}
-                  className="w-8 h-8 bg-primary/10 text-primary rounded-full flex items-center justify-center hover:bg-primary/20 transition-colors active:scale-95"
-                >
-                  <Plus size={18} strokeWidth={2.5} />
-                </button>
-              </div>
+           <div className="space-y-4 h-full">
+              {activeHabits.length > 0 && (
+                <div className="flex justify-between items-center px-2">
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-white">Today's Routine</h2>
+                    <button 
+                    onClick={() => { setEditingHabit({}); setIsEditorOpen(true); }}
+                    className="w-8 h-8 bg-primary/10 text-primary rounded-full flex items-center justify-center hover:bg-primary/20 transition-colors active:scale-95"
+                    >
+                    <Plus size={18} strokeWidth={2.5} />
+                    </button>
+                </div>
+              )}
               
               {activeHabits.length === 0 ? (
-                 <div className="text-center py-10 text-gray-400">
-                    <p>No habits scheduled for today.</p>
-                    <p className="text-sm mt-2">Tap the + button to add one.</p>
+                 <div className="flex flex-col items-center justify-center h-[50vh] animate-in fade-in zoom-in duration-300">
+                    <p className="text-lg font-bold text-gray-600 dark:text-gray-300 mb-6">Add your daily routine</p>
+                    <button 
+                        onClick={() => { setEditingHabit({}); setIsEditorOpen(true); }}
+                        className="w-20 h-20 bg-primary text-white rounded-full flex items-center justify-center shadow-lg shadow-primary/30 hover:bg-sky-600 transition-all hover:scale-105 active:scale-95"
+                    >
+                        <Plus size={40} />
+                    </button>
                  </div>
               ) : (
                 <div className="grid grid-cols-2 gap-3">
                     {activeHabits.map(habit => {
-                    // Aggregate logs for this habit (e.g. sum up 45m + 30m physics study)
                     const habitLogs = logs.filter(l => l.habitId === habit.id && l.status === HabitStatus.COMPLETED);
                     const totalValue = habitLogs.reduce((sum, l) => sum + (l.value || 0), 0);
-                    // Determine status based on whether *any* log exists
                     const currentStatus = habitLogs.length > 0 ? HabitStatus.COMPLETED : logs.find(l => l.habitId === habit.id)?.status;
                     
                     return (
@@ -257,7 +262,7 @@ export default function App() {
                             key={habit.id}
                             habit={habit} 
                             status={currentStatus}
-                            logs={habitLogs} // Pass the individual logs for editing
+                            logs={habitLogs} 
                             loggedValue={totalValue} 
                             onAction={handleHabitAction}
                             onUpdateLog={handleUpdateLog}
