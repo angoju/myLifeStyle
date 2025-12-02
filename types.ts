@@ -5,7 +5,9 @@ export enum Category {
   DIET = 'Diet',
   FITNESS = 'Fitness',
   EDUCATION = 'Education',
-  SLEEP = 'Sleep'
+  SLEEP = 'Sleep',
+  WORK = 'Work',
+  MINDFULNESS = 'Mindfulness'
 }
 
 export enum HabitStatus {
@@ -17,15 +19,20 @@ export enum HabitStatus {
 export interface User {
   id: string;
   name: string;
+  email: string;
+  password?: string; // In a real app, this would be hashed. Storing plain for demo simulation.
+  authType: 'email' | 'google' | 'apple';
   createdAt: number;
 }
 
 export interface Habit {
   id: string;
   title: string;
+  description?: string;
   time: string; // HH:mm format
   category: Category;
-  description?: string;
+  icon?: string; // Emoji or icon name
+  frequency: number[]; // Array of days 0-6 (Sun-Sat). If empty/undefined, assume daily.
   enabled: boolean;
 }
 
