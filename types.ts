@@ -3,6 +3,7 @@ export enum Category {
   SUPPLEMENTS = 'Supplements',
   DIET = 'Diet',
   FITNESS = 'Fitness',
+  EDUCATION = 'Education',
   SLEEP = 'Sleep'
 }
 
@@ -26,6 +27,7 @@ export interface DailyLog {
   habitId: string;
   status: HabitStatus;
   timestamp: number;
+  value?: number; // Duration in minutes or hours
 }
 
 export interface QuoteResponse {

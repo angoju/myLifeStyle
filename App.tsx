@@ -65,7 +65,7 @@ export default function App() {
     setLoadingQuote(false);
   };
 
-  const handleHabitAction = (id: string, status: HabitStatus) => {
+  const handleHabitAction = (id: string, status: HabitStatus, value?: number) => {
     const today = new Date().toISOString().split('T')[0];
     
     if (status === HabitStatus.PENDING) {
@@ -75,7 +75,8 @@ export default function App() {
         date: today,
         habitId: id,
         status,
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        value
       };
       saveLog(newLog);
     }
@@ -193,7 +194,8 @@ export default function App() {
                             <HabitCard 
                                 key={habit.id} 
                                 habit={habit} 
-                                status={log?.status} 
+                                status={log?.status}
+                                loggedValue={log?.value}
                                 onAction={handleHabitAction}
                             />
                         );

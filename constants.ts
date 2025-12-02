@@ -34,6 +34,30 @@ export const DEFAULT_HABITS: Habit[] = [
     enabled: true,
   },
   {
+    id: 'math',
+    title: 'Maths Practice',
+    time: '16:00',
+    category: Category.EDUCATION,
+    description: 'Solve problems',
+    enabled: true,
+  },
+  {
+    id: 'phys',
+    title: 'Physics Study',
+    time: '17:00',
+    category: Category.EDUCATION,
+    description: 'Concepts & Theory',
+    enabled: true,
+  },
+  {
+    id: 'chem',
+    title: 'Chemistry',
+    time: '18:00',
+    category: Category.EDUCATION,
+    description: 'Revision',
+    enabled: true,
+  },
+  {
     id: '5',
     title: 'Dinner Alert',
     time: '19:00',
@@ -56,6 +80,14 @@ export const DEFAULT_HABITS: Habit[] = [
     category: Category.SUPPLEMENTS,
     description: 'Prepare for sleep',
     enabled: true,
+  },
+  {
+    id: 'sleep',
+    title: 'Track Sleep',
+    time: '22:00',
+    category: Category.SLEEP,
+    description: 'Log hours slept',
+    enabled: true,
   }
 ];
 
@@ -64,5 +96,6 @@ export const CATEGORY_COLORS: Record<Category, string> = {
   [Category.SUPPLEMENTS]: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
   [Category.DIET]: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
   [Category.FITNESS]: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+  [Category.EDUCATION]: 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400',
   [Category.SLEEP]: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400',
 };
