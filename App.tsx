@@ -126,7 +126,7 @@ export default function App() {
   const sortedHabits = [...habits].sort((a, b) => a.time.localeCompare(b.time));
 
   return (
-    <div className="min-h-[100dvh] pb-32 relative font-sans text-gray-800 dark:text-gray-100 flex flex-col">
+    <div className="min-h-[100dvh] w-full bg-gray-50 dark:bg-dark pb-32 relative font-sans text-gray-800 dark:text-gray-100 flex flex-col transition-colors duration-200">
       
       {/* Header */}
       <header className="sticky top-0 z-30 bg-white/90 dark:bg-dark/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 px-6 py-4 flex justify-between items-center supports-[backdrop-filter]:bg-white/60">
