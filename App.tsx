@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { BarChart2, Home, Settings, Calendar, Bell } from 'lucide-react';
+import { BarChart2, Home, Settings, Calendar, Bell, Plus } from 'lucide-react';
 import { Habit, DailyLog, HabitStatus, Category, QuoteResponse, User } from './types';
 import { getHabits, saveHabits, getTodayLogs, saveLog, deleteLog, updateLogValue, getSettings, saveSettings, getCurrentUserId, getUsers, logoutUser } from './services/storageService';
 import { fetchMotivationalQuote } from './services/geminiService';
@@ -200,12 +200,15 @@ export default function App() {
                 Hello, {currentUser.name.split(' ')[0]}
               </h1>
             </div>
-            <div className="relative w-12 h-12 flex items-center justify-center">
-               <svg className="w-full h-full transform -rotate-90">
-                 <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-gray-200 dark:text-gray-700" />
-                 <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="4" fill="transparent" strokeDasharray={125} strokeDashoffset={125 - (125 * progress) / 100} className="text-primary transition-all duration-1000 ease-out" />
-               </svg>
-               <span className="absolute text-[10px] font-bold text-gray-700 dark:text-white">{progress}%</span>
+            
+            <div className="flex items-center gap-3">
+                <div className="relative w-12 h-12 flex items-center justify-center">
+                   <svg className="w-full h-full transform -rotate-90">
+                     <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-gray-200 dark:text-gray-700" />
+                     <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="4" fill="transparent" strokeDasharray={125} strokeDashoffset={125 - (125 * progress) / 100} className="text-primary transition-all duration-1000 ease-out" />
+                   </svg>
+                   <span className="absolute text-[10px] font-bold text-gray-700 dark:text-white">{progress}%</span>
+                </div>
             </div>
           </div>
 
@@ -225,11 +228,20 @@ export default function App() {
       <main className="flex-1 px-4 py-6 overflow-y-auto w-full max-w-2xl mx-auto pb-32">
         {activeTab === 'home' && (
            <div className="space-y-4">
-              <h2 className="text-lg font-bold text-gray-900 dark:text-white px-2">Today's Routine</h2>
+              <div className="flex justify-between items-center px-2">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white">Today's Routine</h2>
+                <button 
+                  onClick={() => { setEditingHabit({}); setIsEditorOpen(true); }}
+                  className="w-8 h-8 bg-primary/10 text-primary rounded-full flex items-center justify-center hover:bg-primary/20 transition-colors active:scale-95"
+                >
+                  <Plus size={18} strokeWidth={2.5} />
+                </button>
+              </div>
+              
               {activeHabits.length === 0 ? (
                  <div className="text-center py-10 text-gray-400">
                     <p>No habits scheduled for today.</p>
-                    <p className="text-sm mt-2">Go to Settings to add one.</p>
+                    <p className="text-sm mt-2">Tap the + button to add one.</p>
                  </div>
               ) : (
                 <div className="grid grid-cols-2 gap-3">
