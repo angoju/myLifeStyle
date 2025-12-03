@@ -4,6 +4,7 @@ import { BarChart2, Home, Settings, Calendar, Bell, Plus, X } from 'lucide-react
 import { Habit, DailyLog, HabitStatus, QuoteResponse, User } from './types';
 import { getHabits, saveHabits, getTodayLogs, saveLog, deleteLog, updateLogValue, getSettings, saveSettings, getCurrentUserId, getUsers, logoutUser, getLocalDate, initCategories } from './services/storageService';
 import { fetchMotivationalQuote } from './services/geminiService';
+import { formatFrequency } from './constants';
 import HabitCard from './components/HabitCard';
 import Dashboard from './components/Dashboard';
 import AuthScreen from './components/AuthScreen';
@@ -104,9 +105,11 @@ export default function App() {
   const saveHabit = (habitData: Partial<Habit>) => {
     if (!habitData.title || !habitData.time) return;
     const newHabits = [...habits];
+    const finalFreq = habitData.frequency || [];
+
     if (habitData.id) {
       const index = newHabits.findIndex(h => h.id === habitData.id);
-      if (index !== -1) newHabits[index] = { ...newHabits[index], ...habitData } as Habit;
+      if (index !== -1) newHabits[index] = { ...newHabits[index], ...habitData, frequency: finalFreq } as Habit;
     } else {
       newHabits.push({
         id: generateId(),
@@ -114,7 +117,7 @@ export default function App() {
         time: habitData.time!,
         category: habitData.category || 'Morning Routine',
         description: habitData.description || '',
-        frequency: habitData.frequency || [0,1,2,3,4,5,6],
+        frequency: finalFreq,
         enabled: true
       });
     }
@@ -122,6 +125,12 @@ export default function App() {
     saveHabits(newHabits);
     setIsEditorOpen(false);
     setEditingHabit({});
+
+    // Feedback to user about when the habit will appear
+    const todayIndex = new Date().getDay();
+    if (finalFreq.length > 0 && !finalFreq.includes(todayIndex)) {
+        alert(`Habit Saved!\n\nThis habit is scheduled for ${formatFrequency(finalFreq)}.\nIt will appear in your routine on those days.`);
+    }
   };
 
   const deleteHabit = (id: string) => {

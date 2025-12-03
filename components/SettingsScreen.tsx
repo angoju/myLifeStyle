@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { User, Habit } from '../types';
 import { Bell, Moon, LogOut, ChevronRight, Edit2, Plus, UserX, Layers } from 'lucide-react';
 import { deleteAccount } from '../services/storageService';
+import { formatFrequency } from '../constants';
 import CategoryManager from './CategoryManager';
 
 interface SettingsScreenProps {
@@ -70,7 +71,10 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ user, habits, darkMode,
             <div key={h.id} onClick={() => onOpenEditor(h)} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-800 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors cursor-pointer">
               <div className="flex items-center gap-3">
                 <span className="text-xs font-bold text-gray-400 w-10">{h.time}</span>
-                <span className="text-sm font-medium dark:text-gray-200">{h.title}</span>
+                <div className="flex flex-col">
+                    <span className="text-sm font-medium dark:text-gray-200">{h.title}</span>
+                    <span className="text-[10px] text-gray-400 font-medium">{formatFrequency(h.frequency)}</span>
+                </div>
               </div>
               <ChevronRight size={16} className="text-gray-400" />
             </div>

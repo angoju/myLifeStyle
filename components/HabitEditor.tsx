@@ -16,6 +16,7 @@ const HabitEditor: React.FC<HabitEditorProps> = ({ initialHabit, onSave, onDelet
   const [habit, setHabit] = useState<Partial<Habit>>({
     ...initialHabit,
     category: initialHabit.category || 'Morning Routine',
+    frequency: initialHabit.frequency || [], // Default to empty array (unchecked)
   });
 
   const [categories, setCategories] = useState<any[]>([]);
@@ -73,6 +74,19 @@ const HabitEditor: React.FC<HabitEditorProps> = ({ initialHabit, onSave, onDelet
         alert("Please select or enter a habit name");
         return;
     }
+    
+    // VALIDATION: Time
+    if (!habit.time) {
+        alert("Please select a time");
+        return;
+    }
+
+    // VALIDATION: Repeat Days (Frequency)
+    // Must have at least 1 day selected
+    if (!habit.frequency || habit.frequency.length === 0) {
+        alert("Please select at least one day.");
+        return;
+    }
 
     // Auto-add new custom item to the selected category
     const cat = categories.find(c => c.name === habit.category);
@@ -85,17 +99,22 @@ const HabitEditor: React.FC<HabitEditorProps> = ({ initialHabit, onSave, onDelet
 
     onSave({
         ...habit,
-        title: searchQuery
+        title: searchQuery,
+        frequency: habit.frequency // Explicitly pass array
     });
   };
 
   const toggleDay = (dayIndex: number) => {
-    const currentDays = habit.frequency || [0, 1, 2, 3, 4, 5, 6];
-    if (currentDays.includes(dayIndex)) {
-      setHabit({ ...habit, frequency: currentDays.filter(d => d !== dayIndex) });
-    } else {
-      setHabit({ ...habit, frequency: [...currentDays, dayIndex].sort() });
-    }
+    setHabit(prev => {
+        const currentDays = prev.frequency || [];
+        let newDays;
+        if (currentDays.includes(dayIndex)) {
+            newDays = currentDays.filter(d => d !== dayIndex);
+        } else {
+            newDays = [...currentDays, dayIndex].sort((a, b) => a - b);
+        }
+        return { ...prev, frequency: newDays };
+    });
   };
 
   const filteredItems = availableItems.filter(item => 
@@ -129,7 +148,7 @@ const HabitEditor: React.FC<HabitEditorProps> = ({ initialHabit, onSave, onDelet
                 <select
                     value={habit.category}
                     onChange={(e) => setHabit({...habit, category: e.target.value})}
-                    className="w-full p-4 bg-white border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-primary text-gray-900 font-medium appearance-none cursor-pointer shadow-sm"
+                    className="w-full p-4 !bg-white border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-primary !text-gray-900 font-medium appearance-none cursor-pointer shadow-sm"
                 >
                     {categories.map(cat => (
                         <option key={cat.id} value={cat.name}>{cat.name}</option>
@@ -154,7 +173,7 @@ const HabitEditor: React.FC<HabitEditorProps> = ({ initialHabit, onSave, onDelet
                         setSearchQuery(e.target.value);
                         setIsDropdownOpen(true);
                     }}
-                    className="w-full pl-11 pr-4 py-4 bg-white border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-primary text-gray-900 font-medium shadow-sm"
+                    className="w-full pl-11 pr-4 py-4 !bg-white border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-primary !text-gray-900 font-medium shadow-sm"
                     placeholder="Search or type custom..."
                 />
             </div>
@@ -197,7 +216,7 @@ const HabitEditor: React.FC<HabitEditorProps> = ({ initialHabit, onSave, onDelet
                 type="time" 
                 value={habit.time || ''} 
                 onChange={e => setHabit({...habit, time: e.target.value})}
-                className="w-full p-4 bg-white border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-primary text-gray-900 font-medium shadow-sm"
+                className="w-full p-4 !bg-white border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-primary !text-gray-900 font-medium shadow-sm"
               />
             </div>
             <div>
@@ -206,7 +225,7 @@ const HabitEditor: React.FC<HabitEditorProps> = ({ initialHabit, onSave, onDelet
                     type="text" 
                     value={habit.description || ''} 
                     onChange={e => setHabit({...habit, description: e.target.value})}
-                    className="w-full p-4 bg-white border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-primary text-gray-900 font-medium shadow-sm"
+                    className="w-full p-4 !bg-white border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-primary !text-gray-900 font-medium shadow-sm"
                     placeholder="Optional..."
                 />
             </div>
@@ -217,9 +236,10 @@ const HabitEditor: React.FC<HabitEditorProps> = ({ initialHabit, onSave, onDelet
             <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Repeat</label>
             <div className="flex justify-between gap-1">
                 {days.map((day, idx) => {
-                    const isSelected = (habit.frequency || [0,1,2,3,4,5,6]).includes(idx);
+                    const isSelected = (habit.frequency || []).includes(idx);
                     return (
                         <button
+                            type="button"
                             key={day}
                             onClick={() => toggleDay(idx)}
                             className={`w-10 h-10 rounded-full text-xs font-bold flex items-center justify-center transition-all

@@ -127,7 +127,7 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ onClose }) => {
                                         autoFocus
                                         value={editValue} 
                                         onChange={e => setEditValue(e.target.value)}
-                                        className="flex-1 p-2 rounded-lg border bg-white text-gray-900 text-sm shadow-sm"
+                                        className="flex-1 p-2 rounded-lg border !bg-white !text-gray-900 text-sm shadow-sm"
                                     />
                                     <button onClick={() => handleUpdateCategory(cat.id)} className="p-2 text-green-500 bg-green-50 rounded-lg"><Save size={16}/></button>
                                     <button onClick={() => setEditingId(null)} className="p-2 text-gray-400 bg-gray-100 rounded-lg"><X size={16}/></button>
@@ -159,7 +159,7 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ onClose }) => {
                                         autoFocus
                                         value={editValue} 
                                         onChange={e => setEditValue(e.target.value)}
-                                        className="flex-1 p-2 rounded-lg border bg-white text-gray-900 text-sm shadow-sm"
+                                        className="flex-1 p-2 rounded-lg border !bg-white !text-gray-900 text-sm shadow-sm"
                                     />
                                     <button onClick={() => handleUpdateSubItem(item.id)} className="p-2 text-green-500 bg-green-50 rounded-lg"><Save size={16}/></button>
                                     <button onClick={() => setEditingId(null)} className="p-2 text-gray-400 bg-gray-100 rounded-lg"><X size={16}/></button>
@@ -187,7 +187,7 @@ const CategoryManager: React.FC<CategoryManagerProps> = ({ onClose }) => {
                     value={newValue}
                     onChange={e => setNewValue(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && (selectedCategory ? handleAddSubItem() : handleAddCategory())}
-                    className="flex-1 p-3 rounded-xl border-none outline-none focus:ring-2 focus:ring-primary shadow-sm bg-white text-gray-900"
+                    className="flex-1 p-3 rounded-xl border-none outline-none focus:ring-2 focus:ring-primary shadow-sm !bg-white !text-gray-900"
                 />
                 <button 
                     onClick={selectedCategory ? handleAddSubItem : handleAddCategory}

@@ -87,7 +87,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
                 placeholder="Full Name"
                 value={formData.name}
                 onChange={e => setFormData({...formData, name: e.target.value})}
-                className="w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-primary dark:text-white"
+                className="w-full pl-12 pr-4 py-4 rounded-xl outline-none focus:ring-2 focus:ring-primary !bg-white !text-gray-900"
               />
             </div>
           )}
@@ -99,7 +99,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
               placeholder="Email Address"
               value={formData.email}
               onChange={e => setFormData({...formData, email: e.target.value})}
-              className="w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-primary dark:text-white"
+              className="w-full pl-12 pr-4 py-4 rounded-xl outline-none focus:ring-2 focus:ring-primary !bg-white !text-gray-900"
             />
           </div>
 
@@ -110,7 +110,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
               placeholder="Password"
               value={formData.password}
               onChange={e => setFormData({...formData, password: e.target.value})}
-              className="w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-primary dark:text-white"
+              className="w-full pl-12 pr-4 py-4 rounded-xl outline-none focus:ring-2 focus:ring-primary !bg-white !text-gray-900"
             />
           </div>
 

@@ -5,6 +5,13 @@ import { Category, Habit } from './types';
 const EVERYDAY = [0, 1, 2, 3, 4, 5, 6];
 const WEEKDAYS = [1, 2, 3, 4, 5];
 
+export const formatFrequency = (freq?: number[]): string => {
+    if (!freq || freq.length === 7) return 'Everyday';
+    if (freq.length === 0) return 'Never';
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    return freq.map(d => days[d]).join(', ');
+};
+
 export const DEFAULT_SUB_ITEMS: Record<Category, string[]> = {
   [Category.MORNING]: ['Pepper Water', 'Ginger Water', 'Yoga', 'Meditation', 'Warm Water + Lemon', 'Read News', 'Make Bed'],
   [Category.SUPPLEMENTS]: ['Shilajit Drops', 'Shilajit Resin', 'Ashwagandha Tablet', 'Brazil Nut', 'Magnesium', 'Multivitamin', 'Omega-3', 'Creatine'],
