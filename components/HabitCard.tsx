@@ -205,11 +205,24 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, status, loggedValue, logs 
                     </div>
                 ) : (
                     <div className="flex gap-2">
+                        {/* Primary Button: Done or Add */}
                         {(!isCompleted || requiresValue) && !isSkipped && (
                             <button onClick={handleComplete} className={`flex-1 text-white py-2 rounded-lg font-bold text-xs shadow-sm active:scale-95 ${requiresValue && isCompleted ? 'bg-indigo-500' : 'bg-primary'}`}>
                                 {requiresValue && isCompleted ? <><Plus size={12} className="inline mr-1"/> Add</> : requiresValue ? (isSleep ? 'Log Sleep' : 'Log Time') : 'Done'}
                             </button>
                         )}
+                        
+                        {/* Skip Button: Only for pending habits */}
+                        {!isCompleted && !isSkipped && (
+                            <button 
+                                onClick={() => onAction(habit.id, HabitStatus.SKIPPED)} 
+                                className="px-3 bg-gray-100 text-gray-500 py-2 rounded-lg text-xs font-bold hover:bg-gray-200 transition-colors"
+                            >
+                                Skip
+                            </button>
+                        )}
+
+                        {/* Undo Button: For Completed or Skipped (except requiresValue partial completion) */}
                         {(isCompleted || isSkipped) && !requiresValue && (
                             <button onClick={() => onAction(habit.id, HabitStatus.PENDING)} className="flex-1 bg-gray-100 text-gray-500 py-2 rounded-lg text-xs flex items-center justify-center gap-1 font-semibold"><RotateCcw size={12} /> Undo</button>
                         )}
