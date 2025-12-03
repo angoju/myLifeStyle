@@ -1,8 +1,9 @@
 
 import React, { useState } from 'react';
 import { User, Habit } from '../types';
-import { Bell, Moon, LogOut, ChevronRight, Edit2, Plus, UserX } from 'lucide-react';
+import { Bell, Moon, LogOut, ChevronRight, Edit2, Plus, UserX, Layers } from 'lucide-react';
 import { deleteAccount } from '../services/storageService';
+import CategoryManager from './CategoryManager';
 
 interface SettingsScreenProps {
   user: User;
@@ -15,6 +16,7 @@ interface SettingsScreenProps {
 
 const SettingsScreen: React.FC<SettingsScreenProps> = ({ user, habits, darkMode, onToggleTheme, onLogout, onOpenEditor }) => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [showCatManager, setShowCatManager] = useState(false);
 
   const handleDeleteAccount = () => {
     if (confirm("Are you sure? This action cannot be undone.")) {
@@ -27,7 +29,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ user, habits, darkMode,
     <div className="space-y-6 pb-24">
       <h1 className="text-2xl font-bold text-gray-900 dark:text-white px-2">Settings</h1>
 
-      {/* Profile Section */}
+      {/* Profile */}
       <div className="bg-white dark:bg-card rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-800">
         <div className="flex items-center gap-4 mb-4">
           <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-primary to-purple-500 flex items-center justify-center text-white text-2xl font-bold">
@@ -38,24 +40,30 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ user, habits, darkMode,
             <p className="text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
           </div>
         </div>
-        
-        <button className="w-full py-2 text-sm font-medium text-primary hover:bg-blue-50 dark:hover:bg-slate-800 rounded-lg transition-colors text-left px-2">
-          Change Password
-        </button>
       </div>
 
-      {/* Habit Management */}
+      {/* Management */}
       <div className="bg-white dark:bg-card rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-800">
         <div className="flex justify-between items-center mb-4">
           <h3 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
             <Edit2 size={18} /> Manage Habits
           </h3>
-          <button 
-            onClick={() => onOpenEditor()}
-            className="p-2 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors"
-          >
-            <Plus size={18} />
-          </button>
+          <div className="flex gap-2">
+             <button 
+                onClick={() => setShowCatManager(true)}
+                className="p-2 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-200 transition-colors"
+                title="Manage Categories"
+            >
+                <Layers size={18} />
+            </button>
+            <button 
+                onClick={() => onOpenEditor()}
+                className="p-2 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors"
+                title="New Habit"
+            >
+                <Plus size={18} />
+            </button>
+          </div>
         </div>
         <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
           {habits.map(h => (
@@ -97,22 +105,15 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ user, habits, darkMode,
 
       {/* Danger Zone */}
       <div className="space-y-3 pt-4">
-        <button 
-          onClick={onLogout}
-          className="w-full p-4 bg-white dark:bg-card text-gray-700 dark:text-gray-300 font-semibold rounded-2xl flex items-center justify-center gap-2 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
-        >
+        <button onClick={onLogout} className="w-full p-4 bg-white dark:bg-card text-gray-700 dark:text-gray-300 font-semibold rounded-2xl flex items-center justify-center gap-2 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors">
           <LogOut size={20} /> Log Out
         </button>
-        
-        <button 
-          onClick={handleDeleteAccount}
-          className="w-full p-4 text-red-500 font-semibold rounded-2xl flex items-center justify-center gap-2 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors text-sm"
-        >
+        <button onClick={handleDeleteAccount} className="w-full p-4 text-red-500 font-semibold rounded-2xl flex items-center justify-center gap-2 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors text-sm">
           <UserX size={16} /> Delete Account
         </button>
       </div>
 
-      <p className="text-center text-xs text-gray-400 pt-6">Version 2.0.0 • Build 2024</p>
+      {showCatManager && <CategoryManager onClose={() => setShowCatManager(false)} />}
     </div>
   );
 };

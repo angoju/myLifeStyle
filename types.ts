@@ -10,11 +10,13 @@ export enum Category {
   MINDFULNESS = 'Mindfulness'
 }
 
-export enum HabitStatus {
-  PENDING = 'PENDING',
-  COMPLETED = 'COMPLETED',
-  SKIPPED = 'SKIPPED'
-}
+export type HabitStatus = 'PENDING' | 'COMPLETED' | 'SKIPPED';
+
+export const HabitStatus = {
+  PENDING: 'PENDING' as HabitStatus,
+  COMPLETED: 'COMPLETED' as HabitStatus,
+  SKIPPED: 'SKIPPED' as HabitStatus
+};
 
 export interface User {
   id: string;
@@ -30,22 +32,35 @@ export interface Habit {
   title: string;
   description?: string;
   time: string;
-  category: Category;
+  category: string; // Changed from enum to string to support dynamic categories
   icon?: string;
   frequency: number[];
   enabled: boolean;
 }
 
 export interface DailyLog {
-  id?: string; // Unique ID for specific log entries (e.g. multiple study sessions)
+  id?: string;
   date: string;
   habitId: string;
   status: HabitStatus;
   timestamp: number;
-  value?: number; // Duration in minutes
+  value?: number;
 }
 
 export interface QuoteResponse {
   quote: string;
   author: string;
+}
+
+// Category Manager Types
+export interface SubItemDef {
+  id: string;
+  name: string;
+}
+
+export interface CategoryDef {
+  id: string;
+  name: string;
+  items: SubItemDef[];
+  isDefault?: boolean;
 }

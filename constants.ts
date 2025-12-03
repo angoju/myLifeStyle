@@ -1,8 +1,20 @@
+
 import { Category, Habit } from './types';
 
 // Helper to get all days
 const EVERYDAY = [0, 1, 2, 3, 4, 5, 6];
 const WEEKDAYS = [1, 2, 3, 4, 5];
+
+export const DEFAULT_SUB_ITEMS: Record<Category, string[]> = {
+  [Category.MORNING]: ['Pepper Water', 'Ginger Water', 'Yoga', 'Meditation', 'Warm Water + Lemon', 'Read News', 'Make Bed'],
+  [Category.SUPPLEMENTS]: ['Shilajit Drops', 'Shilajit Resin', 'Ashwagandha Tablet', 'Brazil Nut', 'Magnesium', 'Multivitamin', 'Omega-3', 'Creatine'],
+  [Category.DIET]: ['Dinner Alert', 'Stop eating', 'Hydration', 'Intermittent Fasting Start', 'No Sugar Check', 'Protein Shake', 'Fruit Bowl'],
+  [Category.FITNESS]: ['Gym Workout', 'Home Workout', 'Running', 'Walking', 'Stretching', 'Pushups', 'Squats'],
+  [Category.EDUCATION]: ['Physics Study', 'Maths Practice', 'Chemistry', 'Biology', 'Coding', 'History', 'Language Learning'],
+  [Category.SLEEP]: ['Sleep Tracking', 'Nap', 'Wind Down Routine', 'No Screens'],
+  [Category.WORK]: ['Deep Work Session', 'Email Clearance', 'Planning', 'Meeting Prep'],
+  [Category.MINDFULNESS]: ['Breathing Exercise', 'Gratitude Journal', 'Visualization', 'Silence']
+};
 
 export const DEFAULT_HABITS: Habit[] = [
   {
