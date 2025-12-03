@@ -129,7 +129,7 @@ const HabitEditor: React.FC<HabitEditorProps> = ({ initialHabit, onSave, onDelet
                 <select
                     value={habit.category}
                     onChange={(e) => setHabit({...habit, category: e.target.value})}
-                    className="w-full p-4 bg-gray-50 dark:bg-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-primary dark:text-white font-medium appearance-none cursor-pointer"
+                    className="w-full p-4 bg-white border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-primary text-gray-900 font-medium appearance-none cursor-pointer shadow-sm"
                 >
                     {categories.map(cat => (
                         <option key={cat.id} value={cat.name}>{cat.name}</option>
@@ -154,13 +154,13 @@ const HabitEditor: React.FC<HabitEditorProps> = ({ initialHabit, onSave, onDelet
                         setSearchQuery(e.target.value);
                         setIsDropdownOpen(true);
                     }}
-                    className="w-full pl-11 pr-4 py-4 bg-gray-50 dark:bg-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-primary dark:text-white font-medium"
+                    className="w-full pl-11 pr-4 py-4 bg-white border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-primary text-gray-900 font-medium shadow-sm"
                     placeholder="Search or type custom..."
                 />
             </div>
 
             {isDropdownOpen && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 max-h-48 overflow-y-auto z-20">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 max-h-48 overflow-y-auto z-20">
                     {filteredItems.length > 0 ? (
                         filteredItems.map(item => (
                             <button
@@ -169,7 +169,7 @@ const HabitEditor: React.FC<HabitEditorProps> = ({ initialHabit, onSave, onDelet
                                     setSearchQuery(item);
                                     setIsDropdownOpen(false);
                                 }}
-                                className="w-full text-left px-4 py-3 text-sm font-medium hover:bg-gray-50 dark:hover:bg-slate-700 dark:text-gray-200 border-b border-gray-50 dark:border-gray-700/50 last:border-0"
+                                className="w-full text-left px-4 py-3 text-sm font-medium text-gray-900 hover:bg-gray-50 border-b border-gray-50 last:border-0"
                             >
                                 {item}
                             </button>
@@ -197,7 +197,7 @@ const HabitEditor: React.FC<HabitEditorProps> = ({ initialHabit, onSave, onDelet
                 type="time" 
                 value={habit.time || ''} 
                 onChange={e => setHabit({...habit, time: e.target.value})}
-                className="w-full p-4 bg-gray-50 dark:bg-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-primary dark:text-white font-medium"
+                className="w-full p-4 bg-white border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-primary text-gray-900 font-medium shadow-sm"
               />
             </div>
             <div>
@@ -206,7 +206,7 @@ const HabitEditor: React.FC<HabitEditorProps> = ({ initialHabit, onSave, onDelet
                     type="text" 
                     value={habit.description || ''} 
                     onChange={e => setHabit({...habit, description: e.target.value})}
-                    className="w-full p-4 bg-gray-50 dark:bg-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-primary dark:text-white font-medium"
+                    className="w-full p-4 bg-white border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-primary text-gray-900 font-medium shadow-sm"
                     placeholder="Optional..."
                 />
             </div>
@@ -225,7 +225,7 @@ const HabitEditor: React.FC<HabitEditorProps> = ({ initialHabit, onSave, onDelet
                             className={`w-10 h-10 rounded-full text-xs font-bold flex items-center justify-center transition-all
                                 ${isSelected 
                                     ? 'bg-primary text-white shadow-md shadow-primary/30' 
-                                    : 'bg-gray-100 dark:bg-slate-800 text-gray-400'
+                                    : 'bg-white border border-gray-200 text-gray-400'
                                 }
                             `}
                         >

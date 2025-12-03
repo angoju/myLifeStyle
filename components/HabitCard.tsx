@@ -192,11 +192,11 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, status, loggedValue, logs 
                     <div className="animate-in slide-in-from-bottom-2 fade-in">
                         {isSleep ? (
                             <div className="flex gap-1 mb-2">
-                                <input type="number" value={sleepHrs} onChange={(e) => setSleepHrs(e.target.value)} placeholder="Hr" className="w-1/2 p-2 text-center rounded-lg border text-xs" />
-                                <input type="number" value={sleepMins} onChange={(e) => setSleepMins(e.target.value)} placeholder="Min" className="w-1/2 p-2 text-center rounded-lg border text-xs" />
+                                <input type="number" value={sleepHrs} onChange={(e) => setSleepHrs(e.target.value)} placeholder="Hr" className="w-1/2 p-2 text-center rounded-lg border text-xs bg-white text-gray-900" />
+                                <input type="number" value={sleepMins} onChange={(e) => setSleepMins(e.target.value)} placeholder="Min" className="w-1/2 p-2 text-center rounded-lg border text-xs bg-white text-gray-900" />
                             </div>
                         ) : (
-                            <input type="number" value={inputValue} onChange={(e) => setInputValue(e.target.value)} placeholder="Mins" autoFocus className="w-full p-2 mb-2 text-center rounded-lg border text-xs" />
+                            <input type="number" value={inputValue} onChange={(e) => setInputValue(e.target.value)} placeholder="Mins" autoFocus className="w-full p-2 mb-2 text-center rounded-lg border text-xs bg-white text-gray-900" />
                         )}
                         <div className="flex gap-1">
                             <button onClick={() => setShowInput(false)} className="flex-1 bg-gray-200 text-gray-500 p-2 rounded-lg"><X size={14} className="mx-auto"/></button>
@@ -232,11 +232,11 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, status, loggedValue, logs 
                               <div className="flex gap-1 w-full">
                                   {isSleep ? (
                                     <>
-                                     <input type="number" value={sleepHrs} onChange={e => setSleepHrs(e.target.value)} className="w-8 p-1 text-xs border rounded" />
-                                     <input type="number" value={sleepMins} onChange={e => setSleepMins(e.target.value)} className="w-8 p-1 text-xs border rounded" />
+                                     <input type="number" value={sleepHrs} onChange={e => setSleepHrs(e.target.value)} className="w-8 p-1 text-xs border rounded bg-white text-gray-900" />
+                                     <input type="number" value={sleepMins} onChange={e => setSleepMins(e.target.value)} className="w-8 p-1 text-xs border rounded bg-white text-gray-900" />
                                     </>
                                   ) : (
-                                     <input type="number" value={inputValue} onChange={e => setInputValue(e.target.value)} className="flex-1 p-1 text-xs border rounded" />
+                                     <input type="number" value={inputValue} onChange={e => setInputValue(e.target.value)} className="flex-1 p-1 text-xs border rounded bg-white text-gray-900" />
                                   )}
                                   <button onClick={() => handleSaveEdit(log.id!)} className="text-green-500"><Check size={14}/></button>
                               </div>
